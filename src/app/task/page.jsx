@@ -17,6 +17,7 @@ export default function TaskPage() {
     status: "Todo",
     priority: "",
     dueDate: "",
+    createdAt: "",
   });
   const [sortOption, setSortOption] = useState("");
   const [currentTaskId, setCurrentTaskId] = useState(null);
@@ -119,7 +120,10 @@ export default function TaskPage() {
       });
     } else if (option === "dueDate") {
       sortedTasks.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+    } else if (option === "createdAt") {
+      sortedTasks.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); // Sort by createdAt descending
     }
+
     setTasks(sortedTasks);
     setSortOption(option); // Set the current sorting option
   };
@@ -134,10 +138,7 @@ export default function TaskPage() {
         <h2 className="text-2xl font-bold mb-6">
           Please sign in to access tasks
         </h2>
-        <a
-          className="px-6 py-2 bg-blue-500 text-white rounded"
-          href="/signIn"
-        >
+        <a className="px-6 py-2 bg-blue-500 text-white rounded" href="/signIn">
           Sign In
         </a>
       </div>
@@ -254,6 +255,14 @@ export default function TaskPage() {
         <div className="w-2/3 p-4 border rounded-md">
           {/* Sorting Options */}
           <div className="flex justify-end space-x-4 mb-4">
+            <button
+              onClick={() => handleSort("createdAt")}
+              className={`px-4 py-2 border rounded ${
+                sortOption === "createdAt" ? "bg-blue-500 text-white" : ""
+              }`}
+            >
+              Recent
+            </button>
             <button
               onClick={() => handleSort("priority")}
               className={`px-4 py-2 border rounded ${
