@@ -247,7 +247,7 @@ export default function TaskPage() {
               key={task._id}
               className="flex justify-between items-center mb-2 p-2 border rounded-md"
             >
-              <div className="flex flex-col p-4 border-2 rounded-lg shadow-lg space-y-3 bg-white">
+              <div className="flex flex-col p-4 border-2 rounded-lg shadow-lg space-y-3 bg-white mr-4">
                 {/* Priority Badge */}
                 <div
                   className={`text-sm font-semibold px-3 py-1 rounded-full w-fit text-black ${
