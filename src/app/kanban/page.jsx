@@ -174,7 +174,6 @@
 
 // export default KanbanPage;
 
-
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -295,13 +294,35 @@ const KanbanBoard = () => {
           <h2 className="text-lg font-bold mb-4">Todo</h2>
           {tasks.todo.map((task) => (
             <div
-              key={task._id}
-              className="bg-[#FF9A98] p-4 mb-2 rounded shadow"
-              draggable="true"
-              onDragStart={(e) => handleDragStart(e, task)}
-            >
-              <p>{task.title}</p>
+            key={task._id}
+            className={`text-sm font-semibold p-8 w-fit rounded-xl text-black mb-4 ${
+              task.priority === "High"
+                ? "bg-[#ff6c70]"
+                : task.priority === "Medium"
+                ? "bg-[#ff9194]"
+                : "bg-[#ffb5b7]"
+            }`}
+            draggable="true"
+            onDragStart={(e) => handleDragStart(e, task)}
+          >
+            {/* Task Title */}
+            <h1 className="text-xl font-bold text-gray-800 text-wrap">{task.title}</h1>
+
+            {/* Task Description */}
+            <p className="text-gray-600">
+              {task.description || "No description available"}
+            </p>
+
+            {/* Due Date */}
+            <div className="text-sm text-gray-500">
+              Due Date:{" "}
+              {new Date(task.dueDate).toLocaleDateString(undefined, {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
             </div>
+          </div>
           ))}
         </div>
 
@@ -315,11 +336,33 @@ const KanbanBoard = () => {
           {tasks.inprogress.map((task) => (
             <div
               key={task._id}
-              className="bg-[#FFEE8C] p-4 mb-2 rounded shadow"
+              className={`text-sm font-semibold p-8 w-fit rounded-xl text-black mb-4 ${
+                task.priority === "High"
+                  ? "bg-[#ffd754]"
+                  : task.priority === "Medium"
+                  ? "bg-[#ffdd6c]"
+                  : "bg-[#ffe385]"
+              }`}
               draggable="true"
               onDragStart={(e) => handleDragStart(e, task)}
             >
-              <p>{task.title}</p>
+              {/* Task Title */}
+              <h1 className="text-xl font-bold text-gray-800 text-wrap">{task.title}</h1>
+
+              {/* Task Description */}
+              <p className="text-gray-600">
+                {task.description || "No description available"}
+              </p>
+
+              {/* Due Date */}
+              <div className="text-sm text-gray-500">
+                Due Date:{" "}
+                {new Date(task.dueDate).toLocaleDateString(undefined, {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </div>
             </div>
           ))}
         </div>
@@ -334,11 +377,45 @@ const KanbanBoard = () => {
           {tasks.completed.map((task) => (
             <div
               key={task._id}
-              className="bg-[#89F336] p-4 mb-2 rounded shadow"
+              className={`text-sm font-semibold p-8 w-fit rounded-xl text-black mb-4 ${
+                task.priority === "High"
+                  ? "bg-[#00c04b]"
+                  : task.priority === "Medium"
+                  ? "bg-[#1fd655]"
+                  : "bg-[#39e75f]"
+              }`}
               draggable="true"
               onDragStart={(e) => handleDragStart(e, task)}
             >
-              <p>{task.title}</p>
+              {/* <div
+                  className={`text-sm font-semibold px-3 py-1 rounded-full w-fit text-black ${
+                    task.priority === "High"
+                      ? "bg-[#00c04b]"
+                      : task.priority === "Medium"
+                      ? "bg-[#1fd655]"
+                      : "bg-[#39e75f]"
+                  }`}
+                >
+                  {task.priority}
+                </div> */}
+
+              {/* Task Title */}
+              <h1 className="text-xl font-bold text-gray-800">{task.title}</h1>
+
+              {/* Task Description */}
+              <p className="text-gray-600">
+                {task.description || "No description available"}
+              </p>
+
+              {/* Due Date */}
+              <div className="text-sm text-gray-500">
+                Due Date:{" "}
+                {new Date(task.dueDate).toLocaleDateString(undefined, {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </div>
             </div>
           ))}
         </div>
