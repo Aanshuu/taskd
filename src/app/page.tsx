@@ -1,9 +1,12 @@
 import TaskPage from "./task/page";
+import ProtectedRoute from "../components/ProtectedRoute";
 
 export default function Home() {
   return (
     <div>
-      <TaskPage />
+      <ProtectedRoute>
+        <TaskPage />
+      </ProtectedRoute>
     </div>
   );
 }
