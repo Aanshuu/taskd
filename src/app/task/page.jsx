@@ -2,9 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { Trash2, Pencil } from "lucide-react";
+import { useSession, signOut, signIn } from "next-auth/react";
+import { useRouter } from "next/router";
 
 export default function TaskPage() {
   // State to hold task data
+
+  const { data: session, status } = useSession();
+
   const [tasks, setTasks] = useState([]);
   const [taskData, setTaskData] = useState({
     title: "",
@@ -21,7 +26,7 @@ export default function TaskPage() {
     fetch("/api/tasks")
       .then((res) => res.json())
       .then((data) => setTasks(data));
-  }, []);
+  }, [session]);
 
   // Handle form input changes
   const handleChange = (e) => {
@@ -119,6 +124,26 @@ export default function TaskPage() {
     setSortOption(option); // Set the current sorting option
   };
 
+  if (status === "loading") {
+    return <div>Loading...</div>; // Show a loading indicator while checking the session
+  }
+
+  if (!session) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <h2 className="text-2xl font-bold mb-6">
+          Please sign in to access tasks
+        </h2>
+        <a
+          className="px-6 py-2 bg-blue-500 text-white rounded"
+          href="/signIn"
+        >
+          Sign In
+        </a>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto p-4">
       <div className="flex justify-between items-center mb-4">
@@ -126,8 +151,12 @@ export default function TaskPage() {
           <h1 className="text-3xl font-bold mb-4">TaskD.</h1>
         </div>
         <div>
-          <button className="border px-4 py-2">Sign Up</button>
-          <button className="border px-4 py-2">Sign In</button>
+          <button
+            className="px-6 py-2 bg-red-500 text-white rounded"
+            onClick={() => signOut()}
+          >
+            Sign Out
+          </button>
         </div>
       </div>
 
