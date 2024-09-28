@@ -1,44 +1,44 @@
-import clientPromise from '../../lib/mongodb';
-import { hash } from 'bcryptjs';
+// pages/api/users.js
+import { MongoClient } from 'mongodb';
+import bcrypt from 'bcrypt';
+import clientPromise from "@/lib/mongodb";
 
 export default async function handler(req, res) {
-  const client = await clientPromise;
-  const db = client.db('taskd');
-  const usersCollection = db.collection('Users');
+  if (req.method === 'POST') {
+    const { email, password } = req.body;
 
-  switch (req.method) {
-    // Register a new user (POST)
-    case 'POST':
-      try {
-        const { name, email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Email and password are required' });
+    }
 
-        // Check if the user already exists
-        const existingUser = await usersCollection.findOne({ email });
-        if (existingUser) {
-          return res.status(400).json({ error: 'User already exists' });
-        }
+    try {
+      // Connect to the database
+      const client = await clientPromise;
+      const db = client.db();
 
-        // Hash the password before storing it
-        const hashedPassword = await hash(password, 12);
-        const newUser = {
-          name,
-          email,
-          password: hashedPassword,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        };
-
-        // Insert the new user into the Users collection
-        const result = await usersCollection.insertOne(newUser);
-        res.status(201).json(result);
-      } catch (error) {
-        res.status(500).json({ error: 'Failed to register user' });
+      // Check if user already exists
+      const existingUser = await db.collection('Users').findOne({ email });
+      if (existingUser) {
+        return res.status(409).json({ message: 'User already exists' });
       }
-      break;
 
-    // Handle other methods, e.g., GET, DELETE if needed
-    default:
-      res.status(405).end(`Method ${req.method} Not Allowed`);
-      break;
+      // Hash the password
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      // Create a new user
+      const newUser = await db.collection('Users').insertOne({
+        email,
+        password: hashedPassword,
+      });
+
+      res.status(201).json({ message: 'User created successfully', userId: newUser.insertedId });
+    } catch (error) {
+      console.error('Error creating user:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  } else {
+    // Handle any other HTTP method
+    res.setHeader('Allow', ['POST']);
+    res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 }
