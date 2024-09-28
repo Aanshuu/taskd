@@ -13,6 +13,8 @@ export default function TaskPage() {
     priority: "",
     dueDate: "",
   });
+  const [sortOption, setSortOption] = useState("");
+  const [currentTaskId, setCurrentTaskId] = useState(null);
 
   // Fetch tasks from the API on page load
   useEffect(() => {
@@ -28,24 +30,34 @@ export default function TaskPage() {
   };
 
   // Handle task creation
-  const handleCreateTask = async (e) => {
+  const handleCreateOrUpdateTask = async (e) => {
     e.preventDefault();
-    const response = await fetch("/api/tasks", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(taskData),
-    });
-    if (response.ok) {
-      const newTask = await response.json();
-      setTasks((prevTasks) => [...prevTasks, newTask]);
-      setTaskData({
-        title: "",
-        description: "",
-        status: "Todo",
-        priority: "",
-        dueDate: "",
+
+    if (currentTaskId) {
+      // If a task is being edited
+      await handleUpdate(currentTaskId, taskData);
+      setCurrentTaskId(null); // Clear the current task ID
+    } else {
+      // Creating a new task
+      const response = await fetch("/api/tasks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(taskData),
       });
+      if (response.ok) {
+        const newTask = await response.json();
+        setTasks((prevTasks) => [...prevTasks, newTask]);
+      }
     }
+
+    // Reset task data after creating or updating
+    setTaskData({
+      title: "",
+      description: "",
+      status: "Todo",
+      priority: "",
+      dueDate: "",
+    });
   };
 
   // Handle task deletion
@@ -58,6 +70,53 @@ export default function TaskPage() {
     if (response.ok) {
       setTasks(tasks.filter((task) => task._id !== id));
     }
+  };
+
+  const handleUpdate = async (id, updates) => {
+    try {
+      const response = await fetch("/api/tasks", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, updates }),
+      });
+
+      if (response.ok) {
+        const updatedTask = await response.json();
+        setTasks((prevTasks) =>
+          prevTasks.map((task) => (task._id === id ? updatedTask : task))
+        );
+      } else {
+        console.error("Failed to update task");
+      }
+    } catch (error) {
+      console.error("Error updating task:", error);
+    }
+  };
+
+  // Handle edit mode for tasks
+  const handleEditTask = (task) => {
+    setTaskData({
+      title: task.title,
+      description: task.description,
+      status: task.status,
+      priority: task.priority,
+      dueDate: task.dueDate,
+    });
+    setCurrentTaskId(task._id); // Store task ID for updating
+  };
+
+  const handleSort = (option) => {
+    let sortedTasks = [...tasks];
+    if (option === "priority") {
+      sortedTasks.sort((a, b) => {
+        const priorityOrder = { Low: 1, Medium: 2, High: 3 };
+        return priorityOrder[b.priority] - priorityOrder[a.priority];
+      });
+    } else if (option === "dueDate") {
+      sortedTasks.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+    }
+    setTasks(sortedTasks);
+    setSortOption(option); // Set the current sorting option
   };
 
   return (
@@ -87,7 +146,7 @@ export default function TaskPage() {
       <div className="flex">
         {/* Task creation form */}
         <form
-          onSubmit={handleCreateTask}
+          onSubmit={handleCreateOrUpdateTask}
           className="w-1/3 p-4 border rounded-md mr-4"
         >
           <div className="mb-4">
@@ -158,22 +217,73 @@ export default function TaskPage() {
             className="px-4 py-2 bg-blue-500 text-white rounded"
             type="submit"
           >
-            Create
+            {currentTaskId ? "Update Task" : "Create Task"}
           </button>
         </form>
 
         {/* Task list */}
         <div className="w-2/3 p-4 border rounded-md">
+          {/* Sorting Options */}
+          <div className="flex justify-end space-x-4 mb-4">
+            <button
+              onClick={() => handleSort("priority")}
+              className={`px-4 py-2 border rounded ${
+                sortOption === "priority" ? "bg-blue-500 text-white" : ""
+              }`}
+            >
+              Sort by Priority
+            </button>
+            <button
+              onClick={() => handleSort("dueDate")}
+              className={`px-4 py-2 border rounded ${
+                sortOption === "dueDate" ? "bg-blue-500 text-white" : ""
+              }`}
+            >
+              Sort by Due Date
+            </button>
+          </div>
           {tasks.map((task, index) => (
             <div
               key={task._id}
               className="flex justify-between items-center mb-2 p-2 border rounded-md"
             >
-              <p>
-                {index + 1}: {task.title}
-              </p>
+              <div className="flex flex-col p-4 border-2 rounded-lg shadow-lg space-y-3 bg-white">
+                {/* Priority Badge */}
+                <div
+                  className={`text-sm font-semibold px-3 py-1 rounded-full w-fit text-black ${
+                    task.priority === "High"
+                      ? "bg-[#FF9A98]"
+                      : task.priority === "Medium"
+                      ? "bg-[#FFEE8C]"
+                      : "bg-[#89F336]"
+                  }`}
+                >
+                  {task.priority}
+                </div>
+
+                {/* Task Title */}
+                <h1 className="text-xl font-bold text-gray-800">
+                  {task.title}
+                </h1>
+
+                {/* Task Description */}
+                <p className="text-gray-600">
+                  {task.description || "No description available"}
+                </p>
+
+                {/* Due Date */}
+                <div className="text-sm text-gray-500">
+                  Due Date:{" "}
+                  {new Date(task.dueDate).toLocaleDateString(undefined, {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
+                </div>
+              </div>
+
               <div className="flex justify-center items-center gap-4">
-                <button>
+                <button onClick={() => handleEditTask(task)}>
                   <Pencil />
                 </button>
                 <button
