@@ -1,5 +1,5 @@
 // pages/api/users.js
-import { MongoClient } from 'mongodb';
+// import { MongoClient } from 'mongodb';
 import bcrypt from 'bcrypt';
 import clientPromise from "@/lib/mongodb";
 

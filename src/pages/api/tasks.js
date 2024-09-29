@@ -26,6 +26,7 @@ export default async function handler(req, res) {
         });
         res.status(201).json(newTask);
       } catch (error) {
+        console.error(error);
         res.status(500).json({ error: "Failed to create task" });
       }
       break;
@@ -36,6 +37,7 @@ export default async function handler(req, res) {
         const tasks = await tasksCollection.find({}).toArray();
         res.status(200).json(tasks);
       } catch (error) {
+        console.error(error);
         res.status(500).json({ error: "Failed to fetch tasks" });
       }
       break;

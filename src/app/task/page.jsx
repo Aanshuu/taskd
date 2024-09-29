@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { Trash2, Pencil } from "lucide-react";
-import { useSession, signOut, signIn } from "next-auth/react";
-import { useRouter } from "next/router";
+import { useSession, signOut} from "next-auth/react";
+// import { useRouter } from "next/router";
 
 export default function TaskPage() {
   // State to hold task data
@@ -271,7 +271,7 @@ export default function TaskPage() {
               Sort by Due Date
             </button>
           </div>
-          {tasks.map((task, index) => (
+          {tasks.map((task) => (
             <div
               key={task._id}
               className="flex justify-between items-center mb-2 p-2 border rounded-md"
