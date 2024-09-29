@@ -133,9 +133,7 @@ export default function TaskPage() {
   }
 
   if (!session) {
-    return (
-      <signIn/>
-    );
+    return <signIn />;
   }
 
   return (
@@ -147,7 +145,7 @@ export default function TaskPage() {
         <div>
           <button
             className="px-6 py-2 bg-red-500 text-white rounded"
-            onClick={() => signOut()}
+            onClick={() => signOut({ callbackUrl: "/signIn" })}
           >
             Sign Out
           </button>
