@@ -134,14 +134,7 @@ export default function TaskPage() {
 
   if (!session) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen">
-        <h2 className="text-2xl font-bold mb-6">
-          Please sign in to access tasks
-        </h2>
-        <a className="px-6 py-2 bg-blue-500 text-white rounded" href="/signIn">
-          Sign In
-        </a>
-      </div>
+      <signIn/>
     );
   }
 
